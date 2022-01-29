@@ -1,12 +1,9 @@
 package reqToAPI
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
-	"taxiTestTask/internal/json_to_struct"
-	"taxiTestTask/models"
 )
 
 const (
@@ -14,23 +11,23 @@ const (
 	uri    = "https://apidata.mos.ru/v1/datasets/621/features?api_key=%s"
 )
 
-func RequestJSON(input *[]models.TaxiRawData) error {
+func GetJSONFromAPIRequest() ([]byte, error) {
 	url := fmt.Sprintf(uri, apiKey)
 	resp, err := http.Get(url)
 	defer resp.Body.Close()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-
-	err = json_to_struct.ParseBodyJson(body, input)
-	if err != nil {
-		return errors.New("parsing body: " + err.Error())
-	}
-
-	return nil
+	return io.ReadAll(resp.Body)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//
+	//err = json_to_struct.ParseBodyJson(body, input)
+	//if err != nil {
+	//	return nil,  errors.New("parsing body: " + err.Error())
+	//}
+	//
+	//return body, nil
 }
