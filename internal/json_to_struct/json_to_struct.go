@@ -6,7 +6,7 @@ import (
 	"taxiTestTask/models"
 )
 
-func ParseBodyJson(byt []byte, input *[]models.TaxiRawData) error {
+func ParseBodyJson(byt []byte, input *[]models.TaxiData) error {
 	ones, _ := getOnes(byt)
 	for _, data := range ones {
 		taxiData, err := dataToTaxiData(data)
@@ -18,8 +18,8 @@ func ParseBodyJson(byt []byte, input *[]models.TaxiRawData) error {
 	return nil
 }
 
-func dataToTaxiData(data interface{}) (*models.TaxiRawData, error) {
-	var taxiData models.TaxiRawData
+func dataToTaxiData(data interface{}) (*models.TaxiData, error) {
+	var taxiData models.TaxiData
 	attrs := getAttrs(data)
 	geo := getGeo(data)
 
@@ -33,7 +33,7 @@ func dataToTaxiData(data interface{}) (*models.TaxiRawData, error) {
 	return &taxiData, nil
 }
 
-func unmarshallingToStruct(attrsBytes, geoBytes []byte, taxiData *models.TaxiRawData) error {
+func unmarshallingToStruct(attrsBytes, geoBytes []byte, taxiData *models.TaxiData) error {
 	err := json.Unmarshal(attrsBytes, &taxiData.Attrs)
 	if err != nil {
 		return err

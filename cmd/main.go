@@ -1,6 +1,8 @@
 package main
 
-import "taxiTestTask/pkg/app"
+import (
+	"taxiTestTask/pkg/app"
+)
 
 func main() {
 	app.Run()

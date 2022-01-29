@@ -13,8 +13,8 @@ func Run() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	var input []models.TaxiRawData
-	err = json_to_struct.ParseBodyJson(json, &input)
+	var input []models.TaxiData
+	err = json_to_struct.Parse(json, &input)
 	if err != nil {
 		log.Fatal(err.Error())
 	}

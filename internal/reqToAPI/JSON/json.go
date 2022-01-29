@@ -20,14 +20,4 @@ func GetJSONFromAPIRequest() ([]byte, error) {
 	}
 
 	return io.ReadAll(resp.Body)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//
-	//err = json_to_struct.ParseBodyJson(body, input)
-	//if err != nil {
-	//	return nil,  errors.New("parsing body: " + err.Error())
-	//}
-	//
-	//return body, nil
 }
