@@ -6,17 +6,18 @@ import (
 	"io"
 	"net/http"
 	"taxiTestTask/internal/json_to_struct"
+	"taxiTestTask/models"
 )
 
 const (
 	apiKey = "85a31f5108e65a7e9bbd6c0ade6ae33b"
+	uri    = "https://apidata.mos.ru/v1/datasets/621/features?api_key=%s"
 )
 
-func RequestJSON() error {
-	url := fmt.Sprintf("https://apidata.mos.ru/v1/datasets/621/features?api_key=%s", apiKey)
+func RequestJSON(input *[]models.TaxiRawData) error {
+	url := fmt.Sprintf(uri, apiKey)
 	resp, err := http.Get(url)
 	defer resp.Body.Close()
-
 	if err != nil {
 		return err
 	}
@@ -26,10 +27,10 @@ func RequestJSON() error {
 		return err
 	}
 
-	data, err := json_to_struct.ParseBodyJson(body)
+	err = json_to_struct.ParseBodyJson(body, input)
 	if err != nil {
 		return errors.New("parsing body: " + err.Error())
 	}
-	fmt.Println(data)
+
 	return nil
 }

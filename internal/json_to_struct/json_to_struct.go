@@ -6,18 +6,16 @@ import (
 	"taxiTestTask/models"
 )
 
-func ParseBodyJson(byt []byte) ([]models.TaxiRawData, error) {
-	var result []models.TaxiRawData
+func ParseBodyJson(byt []byte, input *[]models.TaxiRawData) error {
 	ones, _ := getOnes(byt)
 	for _, data := range ones {
 		taxiData, err := dataToTaxiData(data)
 		if err != nil {
-			return nil, err
+			return err
 		}
-		result = append(result, *taxiData)
+		*input = append(*input, *taxiData)
 	}
-	return result, nil
-
+	return nil
 }
 
 func dataToTaxiData(data interface{}) (*models.TaxiRawData, error) {
