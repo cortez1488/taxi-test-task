@@ -56,7 +56,7 @@ func InitRedis() *redis.Client {
 	//	log.Fatal(err)
 	//}
 
-	result, err := repo.GetByGlobalId(1488661122)
+	result, err := repo.DeleteGID(888888888)
 	if err != nil {
 		log.Fatal(err)
 	}

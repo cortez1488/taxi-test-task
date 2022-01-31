@@ -49,9 +49,6 @@ func getHashCreatingKey(data *models.TaxiData, rdb *redis.Client) (string, error
 	return key, nil
 }
 
-func (r *taxiParkingRedis) Delete() {
-	//sd
-}
 func (r *taxiParkingRedis) GetById(id int) (*models.TaxiData, error) {
 	key, err := getKeyForId(id, r.rdb)
 	if err != nil {
@@ -63,18 +60,6 @@ func (r *taxiParkingRedis) GetById(id int) (*models.TaxiData, error) {
 		return nil, errors.New("error at scanning into service struct: " + err.Error())
 	}
 	return &output, nil
-}
-
-func getKeyForId(id int, rdb *redis.Client) (string, error) {
-	keys, err := rdb.Keys(context.Background(), fmt.Sprintf("*:ID_%d:*", id)).Result()
-	if err == redis.Nil {
-		return "", err
-	}
-	if len(keys) > 1 {
-		return "", errors.New("more than 1 object with ID")
-	}
-	return keys[0], nil
-
 }
 
 func (r *taxiParkingRedis) GetByGlobalId(globalId int64) (*models.TaxiData, error) {
@@ -89,6 +74,34 @@ func (r *taxiParkingRedis) GetByGlobalId(globalId int64) (*models.TaxiData, erro
 		return nil, errors.New("error at scanning into service struct: " + err.Error())
 	}
 	return &output, nil
+}
+
+func (r *taxiParkingRedis) DeleteID(id int) (int64, error) {
+	key, err := getKeyForId(id, r.rdb)
+	if err != nil {
+		return 0, err
+	}
+	return r.rdb.Del(context.Background(), key).Val(), nil
+}
+
+func (r *taxiParkingRedis) DeleteGID(id int64) (int64, error) {
+	key, err := getKeyForGlobalId(id, r.rdb)
+	if err != nil {
+		return 0, err
+	}
+	return r.rdb.Del(context.Background(), key).Val(), nil
+}
+
+func getKeyForId(id int, rdb *redis.Client) (string, error) {
+	keys, err := rdb.Keys(context.Background(), fmt.Sprintf("*:ID_%d:*", id)).Result()
+	if err == redis.Nil {
+		return "", err
+	}
+	if len(keys) > 1 {
+		return "", errors.New("more than 1 object with ID")
+	}
+	return keys[0], nil
+
 }
 
 func getKeyForGlobalId(id int64, rdb *redis.Client) (string, error) {
