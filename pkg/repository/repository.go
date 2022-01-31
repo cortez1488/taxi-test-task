@@ -8,6 +8,7 @@ import (
 type TaxiParking interface {
 	Create(data *models.TaxiData) error
 	GetById(id int) (*models.TaxiData, error)
+	GetByGlobalId(globalId int64) (*models.TaxiData, error)
 }
 
 type Repository struct {
