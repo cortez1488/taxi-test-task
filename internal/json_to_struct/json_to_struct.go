@@ -34,15 +34,16 @@ func dataToTaxiData(data interface{}) (*models.TaxiData, error) {
 }
 
 func unmarshallingToStruct(attrsBytes, geoBytes []byte, taxiData *models.TaxiData) error {
-	err := json.Unmarshal(attrsBytes, &taxiData.Attrs)
+	err := json.Unmarshal(attrsBytes, &taxiData)
 	if err != nil {
 		return err
 	}
 
-	err = json.Unmarshal(geoBytes, &taxiData.Geo)
-	if err != nil {
-		return err
-	}
+	//err = json.Unmarshal(geoBytes, &taxiData.Geo)
+	//if err != nil {
+	//	return err
+	//}
+
 	return nil
 }
 

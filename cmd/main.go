@@ -1,9 +1,9 @@
 package main
 
 import (
-	"taxiTestTask/pkg/app"
+	app "taxiTestTask/internal/app"
 )
 
 func main() {
-	app.Run()
+	app.Redis()
 }
