@@ -41,11 +41,11 @@ func (r *taxiParkingRedis) Create(data *models.TaxiData) error {
 }
 
 func getHashCreatingKey(data *models.TaxiData, rdb *redis.Client) (string, error) {
-	id, err := rdb.Incr(context.Background(), "id_counter").Result()
+	id, err := rdb.Incr(context.Background(), IdCounter).Result()
 	if err == redis.Nil {
-		return "", errors.New("can not find db's id_counter: " + err.Error())
+		return "", errors.New("can not find db's id counter: " + err.Error())
 	}
-	key := fmt.Sprintf("taxi:ID_%d:GID_%d:", id, data.GlobalId)
+	key := fmt.Sprintf("taxi:%s%d:%s%d:", ID, id, globalID, data.GlobalId)
 	return key, nil
 }
 
@@ -64,7 +64,6 @@ func (r *taxiParkingRedis) GetById(id int) (*models.TaxiData, error) {
 
 func (r *taxiParkingRedis) GetByGlobalId(globalId int64) (*models.TaxiData, error) {
 	key, err := getKeyForGlobalId(globalId, r.rdb)
-	fmt.Println(key)
 	if err != nil {
 		return nil, errors.New("key gid error: " + err.Error())
 	}
@@ -93,7 +92,7 @@ func (r *taxiParkingRedis) DeleteGID(id int64) (int64, error) {
 }
 
 func getKeyForId(id int, rdb *redis.Client) (string, error) {
-	keys, err := rdb.Keys(context.Background(), fmt.Sprintf("*:ID_%d:*", id)).Result()
+	keys, err := rdb.Keys(context.Background(), fmt.Sprintf("*:%s%d:*", ID, id)).Result()
 	if err == redis.Nil {
 		return "", err
 	}
@@ -105,7 +104,7 @@ func getKeyForId(id int, rdb *redis.Client) (string, error) {
 }
 
 func getKeyForGlobalId(id int64, rdb *redis.Client) (string, error) {
-	keys, err := rdb.Keys(context.Background(), fmt.Sprintf("*:GID_%d*", id)).Result()
+	keys, err := rdb.Keys(context.Background(), fmt.Sprintf("*:%s%d*", globalID, id)).Result()
 	if len(keys) < 1 {
 		return "", errors.New("key doesn't exists" + err.Error())
 	}

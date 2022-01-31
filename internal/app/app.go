@@ -32,34 +32,34 @@ func Run() {
 }
 
 func InitRedis() *redis.Client {
-	//testData := models.TaxiData{
-	//	Name:        "testName2",
-	//	AdmArea:     "testArea2",
-	//	District:    "testDistrict2",
-	//	Address:     "testDistrict2",
-	//	CarCapacity: 7,
-	//	Mode:        "круглосуточное",
-	//	GlobalId:    1488661122,
-	//	CoordX:      13.68798,
-	//	CoordY:      56.21545,
-	//}
+	testData := models.TaxiData{
+		Name:        "testName2",
+		AdmArea:     "testArea2",
+		District:    "testDistrict2",
+		Address:     "testDistrict2",
+		CarCapacity: 7,
+		Mode:        "круглосуточное",
+		GlobalId:    14850005,
+		CoordX:      13.68798,
+		CoordY:      56.21545,
+	}
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "",
 		DB:       0,
 	})
-	rdb.SetNX(context.Background(), "id_counter", "0", 0)
+	rdb.SetNX(context.Background(), repository.IdCounter, "0", 0)
 	repo := repository.NewRepositoryRedis(rdb)
 
-	//err := repo.Create(&testData)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-
-	result, err := repo.DeleteGID(888888888)
+	err := repo.Create(&testData)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(result)
+
+	result, err := repo.GetByGlobalId(14850000)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(*result)
 	return rdb
 }
