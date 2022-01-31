@@ -17,7 +17,7 @@ func newTaxiParkingRedis(rdb *redis.Client) *taxiParkingRedis {
 }
 
 func (r *taxiParkingRedis) Create(data *models.TaxiData) error {
-	key, err := getHashKey(data, r.rdb)
+	key, err := getHashCreatingKey(data, r.rdb)
 	if err != nil {
 		return err
 	}
@@ -30,7 +30,8 @@ func (r *taxiParkingRedis) Create(data *models.TaxiData) error {
 		r.rdb.HSet(context.Background(), key, "carCapacity", data.CarCapacity)
 		r.rdb.HSet(context.Background(), key, "mode", data.Mode)
 		r.rdb.HSet(context.Background(), key, "global_id", data.GlobalId)
-		r.rdb.HSet(context.Background(), key, "coords", data.Coords)
+		r.rdb.HSet(context.Background(), key, "coordX", data.CoordX)
+		r.rdb.HSet(context.Background(), key, "coordY", data.CoordY)
 		return nil
 	})
 	if err != nil {
@@ -39,7 +40,7 @@ func (r *taxiParkingRedis) Create(data *models.TaxiData) error {
 	return nil
 }
 
-func getHashKey(data *models.TaxiData, rdb *redis.Client) (string, error) {
+func getHashCreatingKey(data *models.TaxiData, rdb *redis.Client) (string, error) {
 	id, err := rdb.Incr(context.Background(), "id_counter").Result()
 	if err == redis.Nil {
 		return "", errors.New("can not find db's id_counter: " + err.Error())
@@ -51,12 +52,30 @@ func getHashKey(data *models.TaxiData, rdb *redis.Client) (string, error) {
 func (r *taxiParkingRedis) Delete() {
 	//sd
 }
-func (r *taxiParkingRedis) GetById() {
-	//sd
+func (r *taxiParkingRedis) GetById(id int) (*models.TaxiData, error) {
+	key, err := getKeyForId(id, r.rdb)
+	if err != nil {
+		return nil, errors.New("key for does not ex: " + err.Error())
+	}
+	var output models.TaxiData
+	err = r.rdb.HGetAll(context.Background(), key).Scan(&output)
+	if err != nil {
+		return nil, errors.New("error at scanning into service struct: " + err.Error())
+	}
+	return &output, nil
+}
+
+func getKeyForId(id int, rdb *redis.Client) (string, error) {
+	keys, err := rdb.Keys(context.Background(), fmt.Sprintf("*:ID_%d:*", id)).Result()
+	if err == redis.Nil {
+		return "", err
+	}
+	if len(keys) > 1 {
+		return "", errors.New("more than 1 object with ID")
+	}
+	return keys[0], nil
+
 }
 func (r *taxiParkingRedis) GetByGlobalId() {
-	//sd
-}
-func (r *taxiParkingRedis) GetByMode() {
 	//sd
 }

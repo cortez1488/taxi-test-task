@@ -40,7 +40,8 @@ func Parse(body []byte, result *[]models.TaxiData) error {
 			CarCapacity: one.Props.Attributes.CarCapacity,
 			Mode:        one.Props.Attributes.Mode,
 			GlobalId:    one.Props.Attributes.GlobalId,
-			Coords:      one.Geo.Coords,
+			CoordX:      one.Geo.Coords[0],
+			CoordY:      one.Geo.Coords[1],
 		})
 	}
 	return nil
