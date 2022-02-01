@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	app.FillRedis()
+	app.Run()
 }
