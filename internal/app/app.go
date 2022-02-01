@@ -5,8 +5,7 @@ import (
 	"fmt"
 	"github.com/go-redis/redis/v8"
 	"log"
-	"taxiTestTask/internal/json_to_struct"
-	reqToAPI "taxiTestTask/internal/reqToAPI/JSON"
+	"taxiTestTask/internal/db_update"
 	"taxiTestTask/models"
 	"taxiTestTask/pkg/repository"
 )
@@ -15,19 +14,6 @@ func Run() {
 	db := InitRedis()
 	repo := repository.NewRepositoryRedis(db)
 	fmt.Sprintf("", repo)
-
-	json, err := reqToAPI.GetJSONFromAPIRequest()
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	var input []models.TaxiData
-	err = json_to_struct.Parse(json, &input)
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	for i, taxi := range input {
-		fmt.Println(i, taxi.Mode)
-	}
 
 }
 
@@ -39,7 +25,7 @@ func InitRedis() *redis.Client {
 		Address:     "testDistrict2",
 		CarCapacity: 7,
 		Mode:        "круглосуточное",
-		GlobalId:    14850005,
+		GlobalId:    40005454,
 		CoordX:      13.68798,
 		CoordY:      56.21545,
 	}
@@ -56,10 +42,18 @@ func InitRedis() *redis.Client {
 		log.Fatal(err)
 	}
 
-	result, err := repo.GetByGlobalId(14850000)
+	result, err := repo.GetByGlobalId(40005454)
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println(*result)
 	return rdb
+}
+
+func FillRedis(rdb *redis.Client) {
+	repo := repository.NewRepositoryRedis(rdb)
+	err := db_update.RefillDB(repo)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
