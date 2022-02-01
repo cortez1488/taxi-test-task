@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
 	"taxiTestTask/pkg/service"
@@ -15,8 +16,9 @@ func newTaxiHandler(service *service.Service) *taxiHandler {
 }
 
 func (h *taxiHandler) GetById(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(r.URL.Path)
-	w.Write([]byte("get by id"))
+	path := ([]byte(r.URL.Path))
+	id := bytes.TrimPrefix(path, []byte(routeGetId))
+	w.Write([]byte(fmt.Sprintf("Your id is: %s", id)))
 }
 func (h *taxiHandler) GetByGlobalId(w http.ResponseWriter, r *http.Request) {
 

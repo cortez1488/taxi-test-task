@@ -2,9 +2,15 @@ package handler
 
 import (
 	"github.com/gorilla/mux"
-	"log"
 	"net/http"
 	"taxiTestTask/pkg/service"
+)
+
+const (
+	routeGetId  = "/api/get-id/"
+	routeGetGid = "/api/get-gid/"
+	routeDelId  = "/api/del-id/"
+	routeDelGid = "/api/del-gid/"
 )
 
 type Handler struct {
@@ -24,17 +30,9 @@ func NewHandler(service *service.Service) *Handler {
 
 func InitRoutes(h *Handler) *mux.Router {
 	router := mux.NewRouter()
-	router.HandleFunc("/", testF).Methods(http.MethodGet)
-	router.HandleFunc("/api/get-id/{id:[0-9]+}", h.GetById).Methods(http.MethodGet)
-	router.HandleFunc("/api/get-gid/{id:[0-9]+}", h.GetByGlobalId).Methods(http.MethodGet)
-	router.HandleFunc("/api/del-id/{id:[0-9]+}", h.DeleteID).Methods(http.MethodDelete)
-	router.HandleFunc("/api/del-gid/{id:[0-9]+}", h.DeleteGID).Methods(http.MethodDelete)
+	router.HandleFunc(routeGetId+"{id:[0-9]+}", h.GetById).Methods(http.MethodGet)
+	router.HandleFunc(routeGetGid+"{id:[0-9]+}", h.GetByGlobalId).Methods(http.MethodGet)
+	router.HandleFunc(routeDelId+"{id:[0-9]+}", h.DeleteID).Methods(http.MethodDelete)
+	router.HandleFunc(routeDelGid+"{id:[0-9]+}", h.DeleteGID).Methods(http.MethodDelete)
 	return router
-}
-
-func testF(w http.ResponseWriter, r *http.Request) {
-	_, err := w.Write([]byte("hello world!"))
-	if err != nil {
-		log.Fatal(err)
-	}
 }
