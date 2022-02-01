@@ -50,7 +50,12 @@ func InitRedis() *redis.Client {
 	return rdb
 }
 
-func FillRedis(rdb *redis.Client) {
+func FillRedis() {
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "",
+		DB:       0,
+	})
 	repo := repository.NewRepositoryRedis(rdb)
 	err := db_update.RefillDB(repo)
 	if err != nil {
