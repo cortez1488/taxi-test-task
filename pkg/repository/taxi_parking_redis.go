@@ -97,6 +97,9 @@ func (r *taxiParkingRedis) DeleteID(id int) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
+	if key == "" { //Error is nil, but string is empty(cause no keys)
+		return 0, nil
+	}
 	return r.rdb.Del(context.Background(), key).Val(), nil
 }
 
@@ -105,13 +108,19 @@ func (r *taxiParkingRedis) DeleteGID(id int64) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
+	if key == "" { //Error is nil, but string is empty(cause no keys)
+		return 0, nil
+	}
 	return r.rdb.Del(context.Background(), key).Val(), nil
 }
 
 func getKeyForId(id int, rdb *redis.Client) (string, error) {
 	keys, err := rdb.Keys(context.Background(), fmt.Sprintf("*:%s%d:*", ID, id)).Result()
-	if err == redis.Nil {
+	if err != nil {
 		return "", err
+	}
+	if len(keys) < 1 {
+		return "", nil
 	}
 	if len(keys) > 1 {
 		return "", errors.New("more than 1 object with ID")
@@ -122,8 +131,11 @@ func getKeyForId(id int, rdb *redis.Client) (string, error) {
 
 func getKeyForGlobalId(id int64, rdb *redis.Client) (string, error) {
 	keys, err := rdb.Keys(context.Background(), fmt.Sprintf("*:%s%d*", globalID, id)).Result()
+	if err != nil {
+		return "", err
+	}
 	if len(keys) < 1 {
-		return "", errors.New("key doesn't exists" + err.Error())
+		return "", nil
 	}
 	if len(keys) > 1 {
 		return "", errors.New("more than 1 object with GID")

@@ -31,8 +31,8 @@ func NewHandler(service *service.Service) *Handler {
 func InitRoutes(h *Handler) *mux.Router {
 	router := mux.NewRouter()
 	router.HandleFunc(routeGetId+"{id:[0-9]+}", h.GetById).Methods(http.MethodGet)
-	router.HandleFunc(routeGetGid+"{id:[0-9]+}", h.GetByGlobalId).Methods(http.MethodGet)
+	router.HandleFunc(routeGetGid+"{gid:[0-9]+}", h.GetByGlobalId).Methods(http.MethodGet)
 	router.HandleFunc(routeDelId+"{id:[0-9]+}", h.DeleteID).Methods(http.MethodDelete)
-	router.HandleFunc(routeDelGid+"{id:[0-9]+}", h.DeleteGID).Methods(http.MethodDelete)
+	router.HandleFunc(routeDelGid+"{gid:[0-9]+}", h.DeleteGID).Methods(http.MethodDelete)
 	return router
 }

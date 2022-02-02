@@ -1,9 +1,11 @@
 package handler
 
 import (
-	"bytes"
-	"fmt"
+	"encoding/json"
+	"github.com/gorilla/mux"
+	"log"
 	"net/http"
+	"strconv"
 	"taxiTestTask/pkg/service"
 )
 
@@ -16,17 +18,54 @@ func newTaxiHandler(service *service.Service) *taxiHandler {
 }
 
 func (h *taxiHandler) GetById(w http.ResponseWriter, r *http.Request) {
-	path := ([]byte(r.URL.Path))
-	id := bytes.TrimPrefix(path, []byte(routeGetId))
-	w.Write([]byte(fmt.Sprintf("Your id is: %s", id)))
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+
+	data, err := h.service.GetById(id)
+	if err != nil {
+		log.Fatal(err)
+	}
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		log.Fatal(err)
+	}
+
 }
 func (h *taxiHandler) GetByGlobalId(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	gid, err := strconv.ParseInt(vars["gid"], 10, 64)
 
+	data, err := h.service.GetByGlobalId(gid)
+	if err != nil {
+		log.Fatal(err)
+	}
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		log.Fatal(err)
+	}
 }
 func (h *taxiHandler) DeleteID(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
 
+	succ, err := h.service.DeleteID(id)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if succ == 1 {
+		w.WriteHeader(http.StatusNoContent)
+	} else if succ == 0 {
+		w.WriteHeader(http.StatusBadRequest)
+	}
 }
 
 func (h *taxiHandler) DeleteGID(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	gid, err := strconv.ParseInt(vars["gid"], 10, 64)
 
+	_, err = h.service.DeleteGID(gid)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

@@ -8,6 +8,6 @@ type TaxiData struct {
 	CarCapacity int     `redis:"carCapacity"`
 	Mode        string  `redis:"mode"`
 	GlobalId    int64   `json:"global_id" redis:"global_id"`
-	CoordX      float32 `redis:"coordX"`
-	CoordY      float32 `redis:"coordY"`
+	CoordX      float32 `redis:"latitude"`
+	CoordY      float32 `redis:"longitude"`
 }
