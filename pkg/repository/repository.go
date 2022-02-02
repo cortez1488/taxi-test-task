@@ -11,10 +11,11 @@ type TaxiParking interface {
 	GetByGlobalId(globalId int64) (*models.TaxiData, error)
 	DeleteID(id int) (int64, error)
 	DeleteGID(id int64) (int64, error)
+}
 
+type DBLogic interface {
 	FillDB(*[]models.TaxiData) error
 	FlushDB()
-
 	GetExpTimeDb() (int, error)
 	FreshExpTimeDb()
 	IncrExpTimeDb()
@@ -22,8 +23,10 @@ type TaxiParking interface {
 
 type Repository struct {
 	TaxiParking
+	DBLogic
 }
 
 func NewRepositoryRedis(rdb *redis.Client) *Repository {
-	return &Repository{TaxiParking: newTaxiParkingRedis(rdb)}
+	return &Repository{TaxiParking: newTaxiParkingRedis(rdb),
+		DBLogic: NewDBLogicRedis(rdb)}
 }

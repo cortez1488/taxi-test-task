@@ -27,38 +27,13 @@ func (r *taxiParkingRedis) Create(data *models.TaxiData) error {
 	}
 
 	_, err = r.rdb.Pipelined(context.Background(), func(rdb redis.Pipeliner) error {
-		r.setHashFromStruct(data, key)
+		SetHashFromStruct(r.rdb, data, key)
 		return nil
 	})
 	if err != nil {
 		return errors.New("putting in redis' hash struct data: " + err.Error())
 	}
 	return nil
-}
-
-func (r *taxiParkingRedis) FlushDB() {
-	r.rdb.FlushDB(context.Background())
-}
-
-func (r *taxiParkingRedis) FillDB(slice *[]models.TaxiData) error {
-	r.rdb.SetNX(context.Background(), IdCounter, "0", 0)
-	for _, data := range *slice {
-		key, err := getHashCreatingKey(&data, r.rdb)
-		if err != nil {
-			return err
-		}
-		_, err = r.rdb.Pipelined(context.Background(), func(rdb redis.Pipeliner) error {
-			r.setHashFromStruct(&data, key)
-			return nil
-		})
-	}
-	return nil
-}
-
-func (r *taxiParkingRedis) setHashFromStruct(data *models.TaxiData, key string) {
-	r.rdb.HSet(context.Background(), key, "name", data.Name, "admArea", data.AdmArea, "district", data.District,
-		"address", data.Address, "carCapacity", data.CarCapacity, "mode", data.Mode, "global_id", data.GlobalId,
-		"coordX", data.CoordX, "coordY", data.CoordY)
 }
 
 func getHashCreatingKey(data *models.TaxiData, rdb *redis.Client) (string, error) {
@@ -154,16 +129,4 @@ func getKeyForGlobalId(id int64, rdb *redis.Client) (string, error) {
 	}
 	return keys[0], nil
 
-}
-
-func (r *taxiParkingRedis) GetExpTimeDb() (int, error) {
-	return r.rdb.Get(context.Background(), timeRefillDB).Int()
-}
-
-func (r *taxiParkingRedis) FreshExpTimeDb() {
-	r.rdb.Set(context.Background(), timeRefillDB, 0, 0)
-}
-
-func (r *taxiParkingRedis) IncrExpTimeDb() {
-	r.rdb.Incr(context.Background(), timeRefillDB)
 }
