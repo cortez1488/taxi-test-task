@@ -29,7 +29,17 @@ func Run() {
 		Handler:      routers, // Pass our instance of gorilla/mux in.
 	}
 	log.Println("Server started at " + serverUrl)
+
+	go refillDb(service) // goroutine to refill db one a day
+
 	err := srv.ListenAndServe()
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func refillDb(service *service2.Service) {
+	err := service.RefillDB()
 	if err != nil {
 		log.Fatal(err)
 	}

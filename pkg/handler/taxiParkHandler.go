@@ -47,7 +47,9 @@ func (h *taxiHandler) GetByGlobalId(w http.ResponseWriter, r *http.Request) {
 func (h *taxiHandler) DeleteID(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
-
+	if err != nil {
+		log.Fatal(err)
+	}
 	succ, err := h.service.DeleteID(id)
 	if err != nil {
 		log.Fatal(err)
@@ -63,9 +65,17 @@ func (h *taxiHandler) DeleteID(w http.ResponseWriter, r *http.Request) {
 func (h *taxiHandler) DeleteGID(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	gid, err := strconv.ParseInt(vars["gid"], 10, 64)
-
-	_, err = h.service.DeleteGID(gid)
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	succ, err := h.service.DeleteGID(gid)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if succ == 1 {
+		w.WriteHeader(http.StatusNoContent)
+	} else if succ == 0 {
+		w.WriteHeader(http.StatusBadRequest)
 	}
 }

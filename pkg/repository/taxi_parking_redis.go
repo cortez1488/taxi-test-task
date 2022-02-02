@@ -8,6 +8,10 @@ import (
 	"taxiTestTask/models"
 )
 
+const (
+	timeRefillDB = "timeRefillDB"
+)
+
 type taxiParkingRedis struct {
 	rdb *redis.Client
 }
@@ -71,6 +75,10 @@ func (r *taxiParkingRedis) GetById(id int) (*models.TaxiData, error) {
 	if err != nil {
 		return nil, errors.New("key id does not ex: " + err.Error())
 	}
+	if key == "" {
+		return nil, errors.New("No objects")
+	}
+
 	var output models.TaxiData
 	err = r.rdb.HGetAll(context.Background(), key).Scan(&output)
 	if err != nil {
@@ -84,6 +92,10 @@ func (r *taxiParkingRedis) GetByGlobalId(globalId int64) (*models.TaxiData, erro
 	if err != nil {
 		return nil, errors.New("key gid error: " + err.Error())
 	}
+	if key == "" {
+		return nil, errors.New("No objects")
+	}
+
 	var output models.TaxiData
 	err = r.rdb.HGetAll(context.Background(), key).Scan(&output)
 	if err != nil {
@@ -142,4 +154,16 @@ func getKeyForGlobalId(id int64, rdb *redis.Client) (string, error) {
 	}
 	return keys[0], nil
 
+}
+
+func (r *taxiParkingRedis) GetExpTimeDb() (int, error) {
+	return r.rdb.Get(context.Background(), timeRefillDB).Int()
+}
+
+func (r *taxiParkingRedis) FreshExpTimeDb() {
+	r.rdb.Set(context.Background(), timeRefillDB, 0, 0)
+}
+
+func (r *taxiParkingRedis) IncrExpTimeDb() {
+	r.rdb.Incr(context.Background(), timeRefillDB)
 }
