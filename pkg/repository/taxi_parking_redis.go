@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/go-redis/redis/v8"
 	"taxiTestTask/models"
+	"taxiTestTask/pkg/service_errors"
 )
 
 const (
@@ -31,7 +32,7 @@ func (r *taxiParkingRedis) Create(data *models.TaxiData) error {
 		return nil
 	})
 	if err != nil {
-		return errors.New("putting in redis' hash struct data: " + err.Error())
+		return service_errors.ErrUnableToSave
 	}
 	return nil
 }
@@ -48,10 +49,10 @@ func getHashCreatingKey(data *models.TaxiData, rdb *redis.Client) (string, error
 func (r *taxiParkingRedis) GetById(id int) (*models.TaxiData, error) {
 	key, err := getKeyForId(id, r.rdb)
 	if err != nil {
-		return nil, errors.New("key id does not ex: " + err.Error())
+		return nil, err
 	}
 	if key == "" {
-		return nil, errors.New("No objects")
+		return nil, service_errors.ErrNoData
 	}
 
 	var output models.TaxiData
@@ -68,7 +69,7 @@ func (r *taxiParkingRedis) GetByGlobalId(globalId int64) (*models.TaxiData, erro
 		return nil, errors.New("key gid error: " + err.Error())
 	}
 	if key == "" {
-		return nil, errors.New("No objects")
+		return nil, service_errors.ErrNoData
 	}
 
 	var output models.TaxiData
