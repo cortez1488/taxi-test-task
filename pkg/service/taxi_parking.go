@@ -18,7 +18,6 @@ func newTaxiService(repo *repository.TaxiParking) *taxiService {
 }
 
 func (s *taxiService) GetById(id int) (*models.TaxiData, error) {
-
 	return s.repo.GetById(id)
 }
 
