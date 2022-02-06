@@ -28,7 +28,7 @@ func (h *taxiHandler) GetById(w http.ResponseWriter, r *http.Request) {
 
 	data, err := h.service.GetById(id)
 	if err != nil {
-		h.handleError(&w, err)
+		h.handleError(w, err)
 		return
 	}
 
@@ -49,7 +49,7 @@ func (h *taxiHandler) GetByGlobalId(w http.ResponseWriter, r *http.Request) {
 
 	data, err := h.service.GetByGlobalId(gid)
 	if err != nil {
-		h.handleError(&w, err)
+		h.handleError(w, err)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")

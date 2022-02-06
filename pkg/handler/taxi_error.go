@@ -16,11 +16,11 @@ func init() {
 	unableToSaveJSON, _ = json.Marshal(map[string]string{"error": "unable to save"})
 }
 
-func (h *taxiHandler) handleError(w *http.ResponseWriter, err error) {
+func (h *taxiHandler) handleError(w http.ResponseWriter, err error) {
 	switch err {
 	case service_errors.ErrNoData:
-		(*w).Write(noDataJSON)
+		(w).Write(noDataJSON)
 	case service_errors.ErrUnableToSave:
-		(*w).Write(unableToSaveJSON)
+		(w).Write(unableToSaveJSON)
 	}
 }

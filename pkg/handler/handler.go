@@ -3,6 +3,7 @@ package handler
 import (
 	"github.com/gorilla/mux"
 	"net/http"
+	"taxiTestTask/models"
 	"taxiTestTask/pkg/service"
 )
 
@@ -15,6 +16,7 @@ const (
 
 type Handler struct {
 	TaxiParking
+	RefillDB
 }
 
 type TaxiParking interface {
@@ -24,11 +26,22 @@ type TaxiParking interface {
 	DeleteGID(http.ResponseWriter, *http.Request)
 }
 
-func NewHandler(service *service.Service) *Handler {
-	return &Handler{TaxiParking: newTaxiHandler(service)}
+type RefillDB interface {
+	GetAPIData() ([]byte, error)
+
+	FillDB([]models.TaxiData) error
+	FlushDB()
+	GetExpTimeDb() (int, error)
+	FreshExpTimeDb()
+	IncrExpTimeDb()
 }
 
-func InitRoutes(h *Handler) *mux.Router {
+func NewHandler(service *service.Service) Handler {
+	return Handler{TaxiParking: newTaxiHandler(service),
+		RefillDB: newRefillDBHandler(service.DBLogic)}
+}
+
+func InitRoutes(h Handler) *mux.Router {
 	router := mux.NewRouter()
 	router.HandleFunc(routeGetId+"{id:[0-9]+}", h.GetById).Methods(http.MethodGet)
 	router.HandleFunc(routeGetGid+"{gid:[0-9]+}", h.GetByGlobalId).Methods(http.MethodGet)

@@ -18,10 +18,10 @@ func (r *DBLogicRedis) FlushDB() {
 	r.rdb.FlushDB(context.Background())
 }
 
-func (r *DBLogicRedis) FillDB(slice *[]models.TaxiData) error {
+func (r *DBLogicRedis) FillDB(slice []models.TaxiData) error {
 	r.rdb.SetNX(context.Background(), IdCounter, "0", 0)
-	for _, data := range *slice {
-		key, err := getHashCreatingKey(&data, r.rdb)
+	for _, data := range slice {
+		key, err := getHashCreatingKey(data, r.rdb)
 		if err != nil {
 			return err
 		}

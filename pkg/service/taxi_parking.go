@@ -13,15 +13,15 @@ type taxiService struct {
 	repo repository.TaxiParking
 }
 
-func newTaxiService(repo *repository.TaxiParking) *taxiService {
-	return &taxiService{repo: *repo}
+func newTaxiService(repo repository.TaxiParking) *taxiService {
+	return &taxiService{repo: repo}
 }
 
-func (s *taxiService) GetById(id int) (*models.TaxiData, error) {
+func (s *taxiService) GetById(id int) (models.TaxiData, error) {
 	return s.repo.GetById(id)
 }
 
-func (s *taxiService) GetByGlobalId(id int64) (*models.TaxiData, error) {
+func (s *taxiService) GetByGlobalId(id int64) (models.TaxiData, error) {
 	return s.repo.GetByGlobalId(id)
 }
 

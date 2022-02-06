@@ -1,59 +1,34 @@
 package service
 
 import (
-	"errors"
-	"log"
-	"taxiTestTask/internal/json_to_struct"
-	reqToAPI "taxiTestTask/internal/reqToAPI/JSON"
 	"taxiTestTask/models"
 	"taxiTestTask/pkg/repository"
-	time2 "time"
 )
 
 type DBLogicService struct {
 	repo repository.DBLogic
 }
 
-func NewDBLogicService(DBLogic repository.DBLogic) *DBLogicService {
+func newDBLogicService(DBLogic repository.DBLogic) *DBLogicService {
 	return &DBLogicService{repo: DBLogic}
 }
 
-func (s *DBLogicService) RefillDB() error {
-	for {
-		time, err := s.repo.GetExpTimeDb()
-		if err != nil {
-			return errors.New("s.repo.GetExpTimeDb() :" + err.Error())
-		}
-
-		if time >= dbExpTime {
-			err := refillDB(s)
-			if err != nil {
-				return errors.New("func refillDB(s) :" + err.Error())
-			}
-			s.repo.FreshExpTimeDb()
-			log.Println("REFILLING DATABASE")
-		}
-		s.repo.IncrExpTimeDb()
-		time2.Sleep(time2.Second * 1)
-
-	}
+func (s *DBLogicService) FillDB(data []models.TaxiData) error {
+	return s.repo.FillDB(data)
 }
 
-func refillDB(s *DBLogicService) error {
-	json, err := reqToAPI.GetJSONFromAPIRequest()
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	var input []models.TaxiData
-	err = json_to_struct.Parse(json, &input)
-	if err != nil {
-		log.Fatal(err.Error())
-	}
+func (s *DBLogicService) FlushDB() {
 	s.repo.FlushDB()
-	err = s.repo.FillDB(&input)
-	if err != nil {
-		log.Fatal(err.Error())
-	}
+}
 
-	return nil
+func (s *DBLogicService) GetExpTimeDb() (int, error) {
+	return s.repo.GetExpTimeDb()
+}
+
+func (s *DBLogicService) IncrExpTimeDb() {
+	s.repo.IncrExpTimeDb()
+}
+
+func (s *DBLogicService) FreshExpTimeDb() {
+	s.repo.FreshExpTimeDb()
 }

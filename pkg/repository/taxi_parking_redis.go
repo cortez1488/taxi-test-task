@@ -21,63 +21,39 @@ func newTaxiParkingRedis(rdb *redis.Client) *taxiParkingRedis {
 	return &taxiParkingRedis{rdb: rdb}
 }
 
-func (r *taxiParkingRedis) Create(data *models.TaxiData) error {
-	key, err := getHashCreatingKey(data, r.rdb)
-	if err != nil {
-		return err
-	}
-
-	_, err = r.rdb.Pipelined(context.Background(), func(rdb redis.Pipeliner) error {
-		SetHashFromStruct(r.rdb, data, key)
-		return nil
-	})
-	if err != nil {
-		return service_errors.ErrUnableToSave
-	}
-	return nil
-}
-
-func getHashCreatingKey(data *models.TaxiData, rdb *redis.Client) (string, error) {
-	id, err := rdb.Incr(context.Background(), IdCounter).Result()
-	if err == redis.Nil {
-		return "", errors.New("can not find db's id counter: " + err.Error())
-	}
-	key := fmt.Sprintf("taxi:%s%d:%s%d:", ID, id, globalID, data.GlobalId)
-	return key, nil
-}
-
-func (r *taxiParkingRedis) GetById(id int) (*models.TaxiData, error) {
+func (r *taxiParkingRedis) GetById(id int) (models.TaxiData, error) {
+	var output models.TaxiData
 	key, err := getKeyForId(id, r.rdb)
 	if err != nil {
-		return nil, err
+		return output, err
 	}
 	if key == "" {
-		return nil, service_errors.ErrNoData
+		return output, service_errors.ErrNoData
 	}
 
-	var output models.TaxiData
 	err = r.rdb.HGetAll(context.Background(), key).Scan(&output)
 	if err != nil {
-		return nil, errors.New("error at scanning into service struct: " + err.Error())
+		return output, errors.New("error at scanning into service struct: " + err.Error())
 	}
-	return &output, nil
+	return output, nil
 }
 
-func (r *taxiParkingRedis) GetByGlobalId(globalId int64) (*models.TaxiData, error) {
+func (r *taxiParkingRedis) GetByGlobalId(globalId int64) (models.TaxiData, error) {
+	var output models.TaxiData
+
 	key, err := getKeyForGlobalId(globalId, r.rdb)
 	if err != nil {
-		return nil, errors.New("key gid error: " + err.Error())
+		return output, errors.New("key gid error: " + err.Error())
 	}
 	if key == "" {
-		return nil, service_errors.ErrNoData
+		return output, service_errors.ErrNoData
 	}
 
-	var output models.TaxiData
 	err = r.rdb.HGetAll(context.Background(), key).Scan(&output)
 	if err != nil {
-		return nil, errors.New("error at scanning into service struct: " + err.Error())
+		return output, errors.New("error at scanning into service struct: " + err.Error())
 	}
-	return &output, nil
+	return output, nil
 }
 
 func (r *taxiParkingRedis) DeleteID(id int) (int64, error) {
@@ -100,6 +76,15 @@ func (r *taxiParkingRedis) DeleteGID(id int64) (int64, error) {
 		return 0, nil
 	}
 	return r.rdb.Del(context.Background(), key).Val(), nil
+}
+
+func getHashCreatingKey(data models.TaxiData, rdb *redis.Client) (string, error) {
+	id, err := rdb.Incr(context.Background(), IdCounter).Result()
+	if err == redis.Nil {
+		return "", errors.New("can not find db's id counter: " + err.Error())
+	}
+	key := fmt.Sprintf("taxi:%s%d:%s%d:", ID, id, globalID, data.GlobalId)
+	return key, nil
 }
 
 func getKeyForId(id int, rdb *redis.Client) (string, error) {
